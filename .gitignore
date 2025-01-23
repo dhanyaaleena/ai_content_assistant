@@ -1,0 +1,4 @@
+/app/venv
+/frontend/node_modules
+.env
+/app/__pycache__

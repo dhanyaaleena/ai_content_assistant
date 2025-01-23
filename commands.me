@@ -1,0 +1,20 @@
+python3 -m venv venv 
+source venv/bin/activate  # On macOS/Linux
+
+
+pip3 install fastapi uvicorn "uvicorn[standard]" 
+pip3 install "langchain[all]" 
+pip3 install langchain_community
+pip install aiohttp  # For asynchronous HTTP requests (optional)
+
+
+cd ai_content_assistant
+
+mkdir frontend
+cd frontend
+npx create-next-app .
+mkdir components pages styles public
+
+
+uvicorn main:app --host 0.0.0.0 --port 8000
+
