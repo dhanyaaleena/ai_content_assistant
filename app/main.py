@@ -11,6 +11,9 @@ load_dotenv()
 origins = [
     "http://localhost:3000",  # Allow frontend to make requests from this origin
     "http://localhost:8000",
+    "http://54.193.236.39/",
+    "http://54.193.236.39/:8000",
+    "http://54.193.236.39/:3000"
 ]
 
 API_TOKEN = os.getenv("HUGGINGFACE_API_KEY")
