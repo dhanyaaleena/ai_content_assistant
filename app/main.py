@@ -57,7 +57,6 @@ async def generate_content(request: ContentRequest):
                 tone=tone,
                 length=length,
                 keywords=additional_data.get("keywords"),
-                cta=additional_data.get("cta")
             )
         elif content_type == "social_media":
             prompt = get_social_media_prompt(

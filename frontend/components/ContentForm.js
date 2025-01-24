@@ -39,7 +39,6 @@ const ContentForm = () => {
     emailType: "Sales",           // Default email type
     socialMediaType: "Instagram", // Default social media platform
     keywords: "",                 // Default keywords
-    cta: "",                      // Default CTA (only for email)
     mentions: "",                 // Default mentions for social media
     style: "formal",              // Default style
   });
@@ -61,7 +60,6 @@ const ContentForm = () => {
           email_type: formData.contentType === "email" ? formData.emailType : undefined,
           social_media_type: formData.contentType === "social_media" ? formData.socialMediaType : undefined,
           keywords: formData.keywords.split(",").map((keyword) => keyword.trim()),
-          cta: formData.contentType === "email" ? formData.cta : undefined,
           mentions: formData.contentType === "social_media" ? formData.mentions.split(",").map((mention) => mention.trim()) : undefined,
           style: formData.style,
         },
@@ -219,24 +217,6 @@ const ContentForm = () => {
                 _focus={{ bg: "inputFocusBg" }}
               />
             </FormControl>
-
-            {/* CTA Input (only for email) */}
-            {formData.contentType === "email" && (
-              <FormControl isRequired>
-                <FormLabel>Call to Action (CTA)</FormLabel>
-                <Input
-                  type="text"
-                  name="cta"
-                  value={formData.cta}
-                  onChange={handleChange}
-                  placeholder="e.g., Schedule a Call"
-                  required
-                  bg="inputBg"
-                  color="text"
-                  _focus={{ bg: "inputFocusBg" }}
-                />
-              </FormControl>
-            )}
 
             {/* Mentions for Social Media */}
             {formData.contentType === "social_media" && (
