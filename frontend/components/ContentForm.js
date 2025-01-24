@@ -33,14 +33,14 @@ const theme = extendTheme({
 
 const ContentForm = () => {
   const [formData, setFormData] = useState({
-    contentType: "email",          // Default to email
-    tone: "professional",         // Default tone
+    contentType: "social_media",          // Default to email
+    tone: "casual",         // Default tone
     length: 300,                  // Default length
-    emailType: "Sales",           // Default email type
+    emailType: "personal",           // Default email type
     socialMediaType: "Instagram", // Default social media platform
     keywords: "",                 // Default keywords
     mentions: "",                 // Default mentions for social media
-    style: "formal",              // Default style
+    style: "humorous",              // Default style
   });
   const [result, setResult] = useState("");
 
