@@ -9,8 +9,8 @@ from fastapi.middleware.cors import CORSMiddleware
 load_dotenv()
 
 origins = [
-    "http://localhost:3000",  # For local development frontend
-    "http://localhost:8000",  # For local backend
+    "http://localhost:3100",  # For local development frontend
+    "http://localhost:8100",  # For local backend
     "https://sagestack.org",  # Add your production frontend domain
     "https://www.sagestack.org"  # Add with "www" if applicable
 ]
@@ -21,7 +21,7 @@ if not API_TOKEN:
     raise ValueError("Hugging Face API token not found. Please set it in the .env file.")
 
 # Initialize FastAPI
-app = FastAPI()
+app = FastAPI(root_path="/content-generator/api")
 
 app.add_middleware(
     CORSMiddleware,
@@ -41,7 +41,7 @@ class ContentRequest(BaseModel):
     length: int
     additional_data: dict
 
-@app.post("/api/generate_content")
+@app.post("/generate_content")
 async def generate_content(request: ContentRequest):
     try:
         content_type = request.content_type.lower()

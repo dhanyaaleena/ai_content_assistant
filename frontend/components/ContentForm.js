@@ -8,9 +8,9 @@ import {
   Button,
   VStack,
   StackDivider,
-  useBreakpointValue,
   extendTheme,
-  ChakraProvider
+  ChakraProvider,
+  useToast,
 } from "@chakra-ui/react";
 import { useState } from "react";
 import axios from "../utils/api";
@@ -18,31 +18,32 @@ import axios from "../utils/api";
 // Custom Chakra UI theme with dark mode
 const theme = extendTheme({
   config: {
-    initialColorMode: "dark", // Set dark mode as default
+    initialColorMode: "dark",
     useSystemColorMode: false,
   },
   colors: {
-    background: "#1A202C", // Dark background
-    text: "#E2E8F0", // Light text
-    inputBg: "#2D3748", // Input background for contrast
-    inputFocusBg: "#4A5568", // Input focus background
-    buttonBg: "#2B6CB0", // Button background
-    buttonHoverBg: "#2C5282", // Button hover background
+    background: "#1A202C",
+    text: "#E2E8F0",
+    inputBg: "#2D3748",
+    inputFocusBg: "#4A5568",
+    buttonBg: "#2B6CB0",
+    buttonHoverBg: "#2C5282",
   },
 });
 
 const ContentForm = () => {
   const [formData, setFormData] = useState({
-    contentType: "social_media",          // Default to email
-    tone: "casual",         // Default tone
-    length: 300,                  // Default length
-    emailType: "personal",           // Default email type
-    socialMediaType: "Instagram", // Default social media platform
-    keywords: "",                 // Default keywords
-    mentions: "",                 // Default mentions for social media
-    style: "humorous",              // Default style
+    contentType: "social_media",
+    tone: "casual",
+    length: 300,
+    emailType: "personal",
+    socialMediaType: "Instagram",
+    keywords: "",
+    mentions: "",
+    style: "humorous",
   });
   const [result, setResult] = useState("");
+  const toast = useToast();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -52,7 +53,7 @@ const ContentForm = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post("/generate_content", {
+      const response = await axios.post("/api/generate_content", {
         content_type: formData.contentType,
         tone: formData.tone,
         length: formData.length,
@@ -67,6 +68,13 @@ const ContentForm = () => {
       setResult(response.data.generated_text);
     } catch (error) {
       console.error("Error generating text:", error);
+      toast({
+        title: "Error",
+        description: "Failed to generate content. Please try again.",
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+      });
     }
   };
 
@@ -74,17 +82,16 @@ const ContentForm = () => {
     <ChakraProvider theme={theme}>
       <Box
         bg="background"
-        p={6}
-        rounded="md"
-        shadow="md"
-        // maxW="1200px"
+        p={8}
+        rounded="lg"
+        shadow="2xl"
         width="100%"
         mx="auto"
         mt={10}
         color="text"
       >
         <form onSubmit={handleSubmit}>
-          <VStack spacing={4} divider={<StackDivider borderColor="gray.200" />}>
+          <VStack spacing={6} divider={<StackDivider borderColor="gray.600" />}>
             {/* Content Type Selector */}
             <FormControl isRequired>
               <FormLabel>Content Type</FormLabel>
@@ -96,6 +103,8 @@ const ContentForm = () => {
                 bg="inputBg"
                 color="text"
                 _focus={{ bg: "inputFocusBg" }}
+                transition="all 0.2s"
+                _hover={{ transform: "scale(1.02)" }}
               >
                 <option value="email">Email</option>
                 <option value="social_media">Social Media</option>
@@ -114,6 +123,8 @@ const ContentForm = () => {
                   bg="inputBg"
                   color="text"
                   _focus={{ bg: "inputFocusBg" }}
+                  transition="all 0.2s"
+                  _hover={{ transform: "scale(1.02)" }}
                 >
                   <option value="Sales">Sales</option>
                   <option value="Marketing">Marketing</option>
@@ -137,6 +148,8 @@ const ContentForm = () => {
                   bg="inputBg"
                   color="text"
                   _focus={{ bg: "inputFocusBg" }}
+                  transition="all 0.2s"
+                  _hover={{ transform: "scale(1.02)" }}
                 >
                   <option value="Instagram">Instagram</option>
                   <option value="Facebook">Facebook</option>
@@ -158,6 +171,8 @@ const ContentForm = () => {
                 bg="inputBg"
                 color="text"
                 _focus={{ bg: "inputFocusBg" }}
+                transition="all 0.2s"
+                _hover={{ transform: "scale(1.02)" }}
               >
                 <option value="professional">Professional</option>
                 <option value="friendly">Friendly</option>
@@ -179,6 +194,8 @@ const ContentForm = () => {
                 bg="inputBg"
                 color="text"
                 _focus={{ bg: "inputFocusBg" }}
+                transition="all 0.2s"
+                _hover={{ transform: "scale(1.02)" }}
               >
                 <option value="formal">Formal</option>
                 <option value="conversational">Conversational</option>
@@ -200,6 +217,8 @@ const ContentForm = () => {
                 bg="inputBg"
                 color="text"
                 _focus={{ bg: "inputFocusBg" }}
+                transition="all 0.2s"
+                _hover={{ transform: "scale(1.02)" }}
               />
             </FormControl>
 
@@ -215,6 +234,8 @@ const ContentForm = () => {
                 bg="inputBg"
                 color="text"
                 _focus={{ bg: "inputFocusBg" }}
+                transition="all 0.2s"
+                _hover={{ transform: "scale(1.02)" }}
               />
             </FormControl>
 
@@ -230,6 +251,8 @@ const ContentForm = () => {
                   bg="inputBg"
                   color="text"
                   _focus={{ bg: "inputFocusBg" }}
+                  transition="all 0.2s"
+                  _hover={{ transform: "scale(1.02)" }}
                 />
               </FormControl>
             )}
@@ -240,6 +263,11 @@ const ContentForm = () => {
               type="submit"
               bg="buttonBg"
               _hover={{ bg: "buttonHoverBg" }}
+              size="lg"
+              width="100%"
+              mt={6}
+              transition="all 0.2s"
+              _active={{ transform: "scale(0.98)" }}
             >
               Generate Content
             </Button>
@@ -248,9 +276,19 @@ const ContentForm = () => {
 
         {/* Display Generated Result */}
         {result && (
-          <Box mt={6} p={4} bg="background" shadow="md" rounded="md">
+          <Box
+            mt={8}
+            p={6}
+            bg="inputBg"
+            shadow="md"
+            rounded="lg"
+            border="1px solid"
+            borderColor="gray.600"
+          >
             <strong>Generated Content:</strong>
-            <Box mt={2} color="text">{result}</Box>
+            <Box mt={4} color="text" whiteSpace="pre-wrap">
+              {result}
+            </Box>
           </Box>
         )}
       </Box>

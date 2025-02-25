@@ -1,7 +1,9 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  basePath: "/content-generator",
+  trailingSlash: true, // Ensures proper static asset handling
+  output: "standalone", // Useful for standalone deployment
 };
 
 export default nextConfig;

@@ -3,9 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --turbopack",
+    "dev": "next dev -p 3100",
     "build": "next build",
-    "start": "next start",
+    "start": "next start -p 3100",
     "lint": "next lint"
   },
   "dependencies": {
@@ -14,7 +14,7 @@
     "@emotion/styled": "^11.14.0",
     "axios": "^1.7.9",
     "framer-motion": "^7.10.3",
-    "next": "15.1.6",
+    "next": "^15.1.6",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"
   },
