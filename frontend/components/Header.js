@@ -1,33 +1,47 @@
-import { Box, Heading } from "@chakra-ui/react";
-import { keyframes } from '@emotion/react' 
+// Header.js
+import { Box, Heading, Flex, Icon } from "@chakra-ui/react";
+import { FaFeatherAlt } from "react-icons/fa"; // New writing-related icon
+import { keyframes } from '@emotion/react';
 
 const glow = keyframes`
-  0% { text-shadow: 0 0 5px rgba(255, 255, 255, 0.7); }
-  50% { text-shadow: 0 0 20px rgba(255, 255, 255, 0.9); }
-  100% { text-shadow: 0 0 5px rgba(255, 255, 255, 0.7); }
+  0% { filter: drop-shadow(0 0 2px rgba(96, 165, 250, 0.7)); }
+  50% { filter: drop-shadow(0 0 8px rgba(96, 165, 250, 0.9)); }
+  100% { filter: drop-shadow(0 0 2px rgba(96, 165, 250, 0.7)); }
 `;
 
 const Header = () => {
   return (
     <Box
       bg="gray.800"
-      color="white"
       py={4}
-      px={6}
-      borderBottom="2px solid"
-      borderColor="gray.600"
-      display="flex"
-      justifyContent="center"
-      alignItems="center"
-      boxShadow="lg"
+      borderBottom="1px solid"
+      borderColor="gray.700"
+      boxShadow="sm"
     >
-      <Heading
-        size="md"
-        fontWeight="semibold"
-        animation={`${glow} 3s infinite ease-in-out`}
+      <Flex
+        maxW="container.md"
+        mx="auto"
+        align="center"
+        px={4}
       >
-        AI-Powered Content Generator
-      </Heading>
+        <Icon
+          as={FaFeatherAlt} // Replaced with Feather (pen) icon
+          w={7}
+          h={7}
+          color="cyan.400"
+          mr={3}
+          animation={`${glow} 3s infinite`}
+        />
+        <Heading
+          size="lg"
+          fontWeight="semibold"
+          color="cyan.50"
+          letterSpacing="tighter"
+          animation={`${glow} 3s infinite`}
+        >
+          ContentGen AI
+        </Heading>
+      </Flex>
     </Box>
   );
 };

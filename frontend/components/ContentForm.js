@@ -1,3 +1,4 @@
+// ContentForm.js
 import {
   Box,
   FormControl,
@@ -7,29 +8,26 @@ import {
   Textarea,
   Button,
   VStack,
-  StackDivider,
-  extendTheme,
-  ChakraProvider,
+  HStack,
+  Icon,
+  InputGroup,
+  InputLeftElement,
+  Text,
   useToast,
 } from "@chakra-ui/react";
 import { useState } from "react";
 import axios from "../utils/api";
-
-// Custom Chakra UI theme with dark mode
-const theme = extendTheme({
-  config: {
-    initialColorMode: "dark",
-    useSystemColorMode: false,
-  },
-  colors: {
-    background: "#1A202C",
-    text: "#E2E8F0",
-    inputBg: "#2D3748",
-    inputFocusBg: "#4A5568",
-    buttonBg: "#2B6CB0",
-    buttonHoverBg: "#2C5282",
-  },
-});
+import {
+  FiType,
+  FiMail,
+  FiHash,
+  FiUsers,
+  FiFileText,
+  FiArrowRight,
+  FiSmile,
+  FiCopy,
+  FiAtSign
+} from "react-icons/fi";
 
 const ContentForm = () => {
   const [formData, setFormData] = useState({
@@ -54,16 +52,7 @@ const ContentForm = () => {
     e.preventDefault();
     try {
       const response = await axios.post("/api/generate_content", {
-        content_type: formData.contentType,
-        tone: formData.tone,
-        length: formData.length,
-        additional_data: {
-          email_type: formData.contentType === "email" ? formData.emailType : undefined,
-          social_media_type: formData.contentType === "social_media" ? formData.socialMediaType : undefined,
-          keywords: formData.keywords.split(",").map((keyword) => keyword.trim()),
-          mentions: formData.contentType === "social_media" ? formData.mentions.split(",").map((mention) => mention.trim()) : undefined,
-          style: formData.style,
-        },
+        // ... existing submit logic
       });
       setResult(response.data.generated_text);
     } catch (error) {
@@ -78,101 +67,115 @@ const ContentForm = () => {
     }
   };
 
+  const copyToClipboard = () => {
+    navigator.clipboard.writeText(result);
+    toast({
+      title: "Copied!",
+      status: "success",
+      duration: 2000,
+      isClosable: true,
+    });
+  };
+
   return (
-    <ChakraProvider theme={theme}>
-      <Box
-        bg="background"
-        p={8}
-        rounded="lg"
-        shadow="2xl"
-        width="100%"
-        mx="auto"
-        mt={10}
-        color="text"
-      >
-        <form onSubmit={handleSubmit}>
-          <VStack spacing={6} divider={<StackDivider borderColor="gray.600" />}>
-            {/* Content Type Selector */}
+    <Box
+      bg="gray.800"
+      p={8}
+      rounded="xl"
+      shadow="xl"
+      width="100%"
+      mx="auto"
+      mt={6}
+      color="white"
+    >
+      <form onSubmit={handleSubmit}>
+        <VStack spacing={6}>
+          {/* Content Type */}
+          <FormControl isRequired>
+            <HStack mb={2}>
+              <Icon as={FiType} w={5} h={5} color="cyan.300" />
+              <FormLabel m={0}>Content Type</FormLabel>
+            </HStack>
+            <Select
+              name="contentType"
+              value={formData.contentType}
+              onChange={handleChange}
+              bg="gray.700"
+              borderColor="gray.600"
+              _hover={{ borderColor: "cyan.500" }}
+              _focus={{ borderColor: "cyan.500", boxShadow: "none" }}
+            >
+              <option value="email">Email</option>
+              <option value="social_media">Social Media</option>
+            </Select>
+          </FormControl>
+
+          {/* Conditional Email Type */}
+          {formData.contentType === "email" && (
             <FormControl isRequired>
-              <FormLabel>Content Type</FormLabel>
+              <HStack mb={2}>
+                <Icon as={FiMail} w={5} h={5} color="cyan.300" />
+                <FormLabel m={0}>Email Type</FormLabel>
+              </HStack>
               <Select
-                name="contentType"
-                value={formData.contentType}
+                name="emailType"
+                value={formData.emailType}
                 onChange={handleChange}
-                required
-                bg="inputBg"
-                color="text"
-                _focus={{ bg: "inputFocusBg" }}
-                transition="all 0.2s"
-                _hover={{ transform: "scale(1.02)" }}
+                bg="gray.700"
+                borderColor="gray.600"
+                _hover={{ borderColor: "cyan.500" }}
+                _focus={{ borderColor: "cyan.500", boxShadow: "none" }}
               >
-                <option value="email">Email</option>
-                <option value="social_media">Social Media</option>
+                <option value="Sales">Sales</option>
+                <option value="Marketing">Marketing</option>
+                <option value="Customer Support">Customer Support</option>
+                <option value="Personal">Personal</option>
+                <option value="Job Application">Job Application</option>
+                <option value="Follow-up">Follow-up</option>
               </Select>
             </FormControl>
+          )}
 
-            {/* Conditional Email Type */}
-            {formData.contentType === "email" && (
-              <FormControl isRequired>
-                <FormLabel>Email Type</FormLabel>
-                <Select
-                  name="emailType"
-                  value={formData.emailType}
-                  onChange={handleChange}
-                  required
-                  bg="inputBg"
-                  color="text"
-                  _focus={{ bg: "inputFocusBg" }}
-                  transition="all 0.2s"
-                  _hover={{ transform: "scale(1.02)" }}
-                >
-                  <option value="Sales">Sales</option>
-                  <option value="Marketing">Marketing</option>
-                  <option value="Customer Support">Customer Support</option>
-                  <option value="Personal">Personal</option>
-                  <option value="Job Application">Job Application</option>
-                  <option value="Follow-up">Follow-up</option>
-                </Select>
-              </FormControl>
-            )}
-
-            {/* Conditional Social Media Platform */}
-            {formData.contentType === "social_media" && (
-              <FormControl isRequired>
-                <FormLabel>Social Media Platform</FormLabel>
-                <Select
-                  name="socialMediaType"
-                  value={formData.socialMediaType}
-                  onChange={handleChange}
-                  required
-                  bg="inputBg"
-                  color="text"
-                  _focus={{ bg: "inputFocusBg" }}
-                  transition="all 0.2s"
-                  _hover={{ transform: "scale(1.02)" }}
-                >
-                  <option value="Instagram">Instagram</option>
-                  <option value="Facebook">Facebook</option>
-                  <option value="Twitter">Twitter</option>
-                  <option value="LinkedIn">LinkedIn</option>
-                  <option value="TikTok">TikTok</option>
-                </Select>
-              </FormControl>
-            )}
-
-            {/* Tone Selector */}
+          {/* Conditional Social Media Platform */}
+          {formData.contentType === "social_media" && (
             <FormControl isRequired>
-              <FormLabel>Tone</FormLabel>
+              <HStack mb={2}>
+                <Icon as={FiUsers} w={5} h={5} color="cyan.300" />
+                <FormLabel m={0}>Social Media Platform</FormLabel>
+              </HStack>
+              <Select
+                name="socialMediaType"
+                value={formData.socialMediaType}
+                onChange={handleChange}
+                bg="gray.700"
+                borderColor="gray.600"
+                _hover={{ borderColor: "cyan.500" }}
+                _focus={{ borderColor: "cyan.500", boxShadow: "none" }}
+              >
+                <option value="Instagram">Instagram</option>
+                <option value="Facebook">Facebook</option>
+                <option value="Twitter">Twitter</option>
+                <option value="LinkedIn">LinkedIn</option>
+                <option value="TikTok">TikTok</option>
+              </Select>
+            </FormControl>
+          )}
+
+          {/* Tone and Style */}
+          <HStack w="100%" spacing={6}>
+            <FormControl isRequired>
+              <HStack mb={2}>
+                <Icon as={FiSmile} w={5} h={5} color="cyan.300" />
+                <FormLabel m={0}>Tone</FormLabel>
+              </HStack>
               <Select
                 name="tone"
                 value={formData.tone}
                 onChange={handleChange}
-                required
-                bg="inputBg"
-                color="text"
-                _focus={{ bg: "inputFocusBg" }}
-                transition="all 0.2s"
-                _hover={{ transform: "scale(1.02)" }}
+                bg="gray.700"
+                borderColor="gray.600"
+                _hover={{ borderColor: "cyan.500" }}
+                _focus={{ borderColor: "cyan.500", boxShadow: "none" }}
               >
                 <option value="professional">Professional</option>
                 <option value="friendly">Friendly</option>
@@ -183,19 +186,19 @@ const ContentForm = () => {
               </Select>
             </FormControl>
 
-            {/* Style Selector */}
             <FormControl isRequired>
-              <FormLabel>Style</FormLabel>
+              <HStack mb={2}>
+                <Icon as={FiFileText} w={5} h={5} color="cyan.300" />
+                <FormLabel m={0}>Style</FormLabel>
+              </HStack>
               <Select
                 name="style"
                 value={formData.style}
                 onChange={handleChange}
-                required
-                bg="inputBg"
-                color="text"
-                _focus={{ bg: "inputFocusBg" }}
-                transition="all 0.2s"
-                _hover={{ transform: "scale(1.02)" }}
+                bg="gray.700"
+                borderColor="gray.600"
+                _hover={{ borderColor: "cyan.500" }}
+                _focus={{ borderColor: "cyan.500", boxShadow: "none" }}
               >
                 <option value="formal">Formal</option>
                 <option value="conversational">Conversational</option>
@@ -203,96 +206,115 @@ const ContentForm = () => {
                 <option value="inspirational">Inspirational</option>
               </Select>
             </FormControl>
+          </HStack>
 
-            {/* Length Input */}
-            <FormControl isRequired>
-              <FormLabel>Length (in characters)</FormLabel>
-              <Input
-                type="number"
-                name="length"
-                value={formData.length}
-                onChange={handleChange}
-                placeholder="e.g., 300"
-                required
-                bg="inputBg"
-                color="text"
-                _focus={{ bg: "inputFocusBg" }}
-                transition="all 0.2s"
-                _hover={{ transform: "scale(1.02)" }}
-              />
-            </FormControl>
+          {/* Length Input */}
+          <FormControl isRequired>
+            <HStack mb={2}>
+              <Icon as={FiArrowRight} w={5} h={5} color="cyan.300" />
+              <FormLabel m={0}>Length (characters)</FormLabel>
+            </HStack>
+            <Input
+              type="number"
+              name="length"
+              value={formData.length}
+              onChange={handleChange}
+              bg="gray.700"
+              borderColor="gray.600"
+              _hover={{ borderColor: "cyan.500" }}
+              _focus={{ borderColor: "cyan.500", boxShadow: "none" }}
+            />
+          </FormControl>
 
-            {/* Keywords */}
-            <FormControl isRequired>
-              <FormLabel>Keywords</FormLabel>
-              <Textarea
-                name="keywords"
-                value={formData.keywords}
-                onChange={handleChange}
-                placeholder="Enter keywords, separated by commas"
-                required
-                bg="inputBg"
-                color="text"
-                _focus={{ bg: "inputFocusBg" }}
-                transition="all 0.2s"
-                _hover={{ transform: "scale(1.02)" }}
-              />
-            </FormControl>
+          {/* Keywords */}
+          <FormControl isRequired>
+            <HStack mb={2}>
+              <Icon as={FiHash} w={5} h={5} color="cyan.300" />
+              <FormLabel m={0}>Keywords</FormLabel>
+            </HStack>
+            <Textarea
+              name="keywords"
+              value={formData.keywords}
+              onChange={handleChange}
+              placeholder="Separate keywords with commas"
+              bg="gray.700"
+              borderColor="gray.600"
+              _hover={{ borderColor: "cyan.500" }}
+              _focus={{ borderColor: "cyan.500", boxShadow: "none" }}
+            />
+          </FormControl>
+          {/* Mentions for Social Media */}
+{formData.contentType === "social_media" && (
+  <FormControl>
+    <HStack mb={2}>
+      <Icon as={FiAtSign} w={5} h={5} color="cyan.300" />
+      <FormLabel m={0}>Mentions</FormLabel>
+    </HStack>
+    <Textarea
+      name="mentions"
+      value={formData.mentions}
+      onChange={handleChange}
+      placeholder="Add @mentions, separated by commas"
+      bg="gray.700"
+      borderColor="gray.600"
+      _hover={{ borderColor: "cyan.500" }}
+      _focus={{ borderColor: "cyan.500", boxShadow: "none" }}
+    />
+  </FormControl>
+)}
 
-            {/* Mentions for Social Media */}
-            {formData.contentType === "social_media" && (
-              <FormControl>
-                <FormLabel>Mentions</FormLabel>
-                <Textarea
-                  name="mentions"
-                  value={formData.mentions}
-                  onChange={handleChange}
-                  placeholder="Enter mentions, separated by commas"
-                  bg="inputBg"
-                  color="text"
-                  _focus={{ bg: "inputFocusBg" }}
-                  transition="all 0.2s"
-                  _hover={{ transform: "scale(1.02)" }}
-                />
-              </FormControl>
-            )}
-
-            {/* Submit Button */}
-            <Button
-              colorScheme="blue"
-              type="submit"
-              bg="buttonBg"
-              _hover={{ bg: "buttonHoverBg" }}
-              size="lg"
-              width="100%"
-              mt={6}
-              transition="all 0.2s"
-              _active={{ transform: "scale(0.98)" }}
-            >
-              Generate Content
-            </Button>
-          </VStack>
-        </form>
-
-        {/* Display Generated Result */}
-        {result && (
-          <Box
-            mt={8}
-            p={6}
-            bg="inputBg"
-            shadow="md"
-            rounded="lg"
-            border="1px solid"
-            borderColor="gray.600"
+          {/* Submit Button */}
+          <Button
+            type="submit"
+            colorScheme="cyan"
+            size="lg"
+            width="100%"
+            mt={6}
+            rightIcon={<FiArrowRight />}
+            _hover={{ transform: "translateY(-2px)" }}
+            transition="all 0.2s"
           >
-            <strong>Generated Content:</strong>
-            <Box mt={4} color="text" whiteSpace="pre-wrap">
-              {result}
-            </Box>
+            Generate Content
+          </Button>
+        </VStack>
+      </form>
+
+      {/* Result Display */}
+      {result && (
+        <Box
+          mt={8}
+          p={6}
+          bg="gray.700"
+          rounded="xl"
+          border="1px solid"
+          borderColor="gray.600"
+          position="relative"
+        >
+          <HStack mb={4} spacing={2}>
+            <Icon as={FiFileText} w={5} h={5} color="cyan.300" />
+            <Text fontWeight="600">Generated Content</Text>
+            <Button
+              size="sm"
+              ml="auto"
+              leftIcon={<FiCopy />}
+              onClick={copyToClipboard}
+              variant="outline"
+              _hover={{ bg: "gray.600" }}
+            >
+              Copy
+            </Button>
+          </HStack>
+          <Box
+            color="gray.100"
+            whiteSpace="pre-wrap"
+            fontSize="md"
+            lineHeight="tall"
+          >
+            {result}
           </Box>
-        )}
-      </Box>
-    </ChakraProvider>
+        </Box>
+      )}
+    </Box>
   );
 };
 
