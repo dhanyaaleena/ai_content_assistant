@@ -10,8 +10,6 @@ import {
   VStack,
   HStack,
   Icon,
-  InputGroup,
-  InputLeftElement,
   Text,
   useToast,
 } from "@chakra-ui/react";
