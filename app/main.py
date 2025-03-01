@@ -1,12 +1,26 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Request
 from pydantic import BaseModel
 from prompts import get_email_prompt, get_social_media_prompt, get_blog_post_prompt, get_youtube_description_prompt
 from huggingface_hub import InferenceClient
 from dotenv import load_dotenv
 import os
 from fastapi.middleware.cors import CORSMiddleware
+import logging
 
 load_dotenv()
+
+# Configure logging to write logs to a file
+log_file = "api_requests.log"
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(levelname)s - %(message)s",
+    handlers=[
+        logging.FileHandler(log_file),  # Log to file
+        # logging.StreamHandler()  # Log to console
+    ]
+)
+
+logger = logging.getLogger("api_logger")
 
 origins = [
     "http://localhost:3100",  # For local development frontend
@@ -40,6 +54,24 @@ class ContentRequest(BaseModel):
     tone: str
     length: int
     additional_data: dict
+
+# Middleware to log incoming requests
+@app.middleware("http")
+async def log_requests(request: Request, call_next):
+    # Read and log the request body
+    body_bytes = await request.body()
+    body_text = body_bytes.decode("utf-8") if body_bytes else ""
+
+    logger.info(f"Incoming request: {request.method} {request.url} Body: {body_text}")
+
+    # Reset the request body so the actual endpoint can read it
+    async def receive():
+        return {"type": "http.request", "body": body_bytes}
+    request._receive = receive
+
+    response = await call_next(request)
+    return response
+
 
 @app.post("/generate_content")
 async def generate_content(request: ContentRequest):
@@ -85,7 +117,7 @@ async def generate_content(request: ContentRequest):
             raise HTTPException(status_code=400, detail="Unsupported content type")
 
 
-        print(prompt)
+        # print(prompt)
         
         messages = [
             {
@@ -98,7 +130,7 @@ async def generate_content(request: ContentRequest):
         completion = client.chat.completions.create(
             model="google/gemma-2-2b-it",  # Specify your desired model
             messages=messages,
-            max_tokens=500  # Set a limit for generated tokens
+            max_tokens=2000  # Set a limit for generated tokens
         )
 
         generated_text = completion.choices[0].message["content"]
