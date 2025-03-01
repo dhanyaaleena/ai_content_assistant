@@ -50,7 +50,16 @@ const ContentForm = () => {
     e.preventDefault();
     try {
       const response = await axios.post("/api/generate_content", {
-        // ... existing submit logic
+        content_type: formData.contentType,
+        tone: formData.tone,
+        length: formData.length,
+        additional_data: {
+          email_type: formData.contentType === "email" ? formData.emailType : undefined,
+          social_media_type: formData.contentType === "social_media" ? formData.socialMediaType : undefined,
+          keywords: formData.keywords.split(",").map((keyword) => keyword.trim()),
+          mentions: formData.contentType === "social_media" ? formData.mentions.split(",").map((mention) => mention.trim()) : undefined,
+          style: formData.style,
+        },
       });
       setResult(response.data.generated_text);
     } catch (error) {
