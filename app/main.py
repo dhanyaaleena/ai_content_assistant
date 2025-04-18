@@ -1,11 +1,17 @@
 from fastapi import FastAPI, HTTPException, Request
 from pydantic import BaseModel
 from prompts import get_email_prompt, get_social_media_prompt, get_blog_post_prompt, get_youtube_description_prompt
-from huggingface_hub import InferenceClient
 from dotenv import load_dotenv
 import os
 from fastapi.middleware.cors import CORSMiddleware
 import logging
+import httpx
+
+import logging
+
+# Configure logging
+logging.basicConfig(level=logging.ERROR)
+logger = logging.getLogger(__name__)
 
 load_dotenv()
 
@@ -29,11 +35,6 @@ origins = [
     "https://www.sagestack.org"  # Add with "www" if applicable
 ]
 
-API_TOKEN = os.getenv("HUGGINGFACE_API_KEY")
-
-if not API_TOKEN:
-    raise ValueError("Hugging Face API token not found. Please set it in the .env file.")
-
 # Initialize FastAPI
 app = FastAPI(root_path="/content-generator/api")
 
@@ -46,7 +47,8 @@ app.add_middleware(
 )
 
 # Initialize Hugging Face client
-client = InferenceClient(api_key=API_TOKEN)
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+GEMINI_API_URL = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={GEMINI_API_KEY}"
 
 # Request schema
 class ContentRequest(BaseModel):
@@ -81,7 +83,6 @@ async def generate_content(request: ContentRequest):
         length = request.length
         additional_data = request.additional_data
 
-
         # Generate the prompt based on content type
         if content_type == "email":
             prompt = get_email_prompt(
@@ -114,28 +115,30 @@ async def generate_content(request: ContentRequest):
                 timestamps=additional_data.get("timestamps")
             )
         else:
+            logger.warning("Unsupported content type: %s", content_type)
             raise HTTPException(status_code=400, detail="Unsupported content type")
+        payload = {
+            "contents": [{
+                "parts": [{"text": prompt}]
+            }]
+        }
 
+        headers = {
+            "Content-Type": "application/json"
+        }
 
-        # print(prompt)
-        
-        messages = [
-            {
-                "role": "user",
-                "content": prompt
-            }
-        ]
+        async with httpx.AsyncClient() as client:
+            response = await client.post(GEMINI_API_URL, headers=headers, json=payload)
 
-        # Call the InferenceClient's chat completion API
-        completion = client.chat.completions.create(
-            model="google/gemma-2-2b-it",  # Specify your desired model
-            messages=messages,
-            max_tokens=2000  # Set a limit for generated tokens
-        )
+        if response.status_code != 200:
+            logger.error("Gemini API error: %s", response.text)
+            raise HTTPException(status_code=response.status_code, detail=response.text)
 
-        generated_text = completion.choices[0].message["content"]
+        gemini_response = response.json()
+        generated_text = gemini_response["candidates"][0]["content"]["parts"][0]["text"]
 
         return {"generated_text": generated_text}
 
     except Exception as e:
+        logger.exception("Error generating content")
         raise HTTPException(status_code=500, detail=str(e))

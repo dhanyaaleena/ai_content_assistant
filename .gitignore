@@ -21,6 +21,9 @@
 # next.js
 /frontend/.next/
 /frontend/out/
+/venv
+/app/api_requests.log
+api_requests.log
 
 # production
 /frontend/build
